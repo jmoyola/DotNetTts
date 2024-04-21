@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DotNetTts.Helpers;
 
 namespace DotNetTts.Core
 {

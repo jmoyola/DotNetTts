@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.IO;
 
-namespace DotNetTtsDeepSpeech.Imp
+namespace PiperDotNetTts.Imp
 {
     public class PiperVoice
     {

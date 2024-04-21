@@ -7,11 +7,11 @@ using System.Linq;
 using DotNetTts.Core;
 using Newtonsoft.Json;
 
-namespace DotNetTtsDeepSpeech.Imp
+namespace PiperDotNetTts.Imp
 {
     public class PiperTtsEngine:TtsEngine
     {
-        private static PiperTtsEngine _instance;
+        private static TtsEngine _instance;
         private List<PiperVoice> _voices; 
         private readonly FileInfo _piperCmd;
 
@@ -32,31 +32,58 @@ namespace DotNetTtsDeepSpeech.Imp
             FindVoices();
         }
         
-        public override FileInfo Speech(string text, CultureInfo culture, TtsProperties ttsProperties = null)
+        public override void Speech(string text, CultureInfo culture, FileInfo outputWavFile, TtsProperties ttsProperties = null)
         {
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
+            
             if (culture == null)
                 throw new ArgumentNullException(nameof(culture));
             
-            PiperVoice pv = _voices.FirstOrDefault(v => v.Language.Equals(culture));
+            if (outputWavFile == null)
+                throw new ArgumentNullException(nameof(outputWavFile));
+            
+            PiperVoice pv = _voices.Find(v => v.Language.Equals(culture));
             if (pv == null)
                 throw new TtsEngineException($"Culture '{culture}' is not available.");
 
-            FileInfo tmpFile = GetTempFile();
-
-            ExecuteLinux(text, pv.LanguageFile.FullName, tmpFile.FullName);
-
-            return tmpFile;
+            ExecutePiper(text, pv.LanguageFile, outputWavFile);
         }
 
-        public override IEnumerable<CultureInfo> Languages
+        public override IEnumerable<TtsVoiceInfo> Voices
         {
             get
             {
-                return _voices.Select(v => v.Language);
+                return _voices.Select(v => new TtsVoiceInfo(v.LanguageFile.Name, v.Info.Dataset, v.Language));
             }
         }
 
-        private void ExecuteLinux(String text, String modelPath, String outputPath)
+        private void ExecutePiper(String text, FileInfo modelPath, FileInfo outputPath)
+        {
+            int exitCode;
+            string command;
+            if (Environment.OSVersion.Platform.ToString()
+                .StartsWith("win", StringComparison.InvariantCultureIgnoreCase))
+            {
+                command="echo '" + text + "'"
+                                     + " | '" + _piperCmd.FullName + "'"
+                                     + " --model '" + modelPath + "'"
+                                     + " --output-file '" + outputPath + "'";
+            }
+            else
+            {
+                command="echo '" + text + "'"
+                                     + " | '" + _piperCmd.FullName + "'"
+                                     + " --model '" + modelPath + "'"
+                                     + " --output-file '" + outputPath + "'";
+            }
+
+            exitCode = ExecuteShell(command);
+            if (exitCode != 0)
+                throw new TtsEngineException($"Error executing piper command '{command}', exit code {exitCode}");
+        }
+
+        private int ExecuteShell(String command, String arguments=null)
         {
             using (Process p = new Process())
             {
@@ -65,31 +92,24 @@ namespace DotNetTtsDeepSpeech.Imp
                     .StartsWith("win", StringComparison.InvariantCultureIgnoreCase))
                 {
                     p.StartInfo.FileName = "cmd";
-                    String command = "echo '" + text + "' "
-                                     + "| '" + _piperCmd.FullName + "'"
-                                     + " --model '" + modelPath + "'"
-                                     + " --output-file '" + outputPath + "'";
-                    p.StartInfo.Arguments = "-c \"" + command + "\"";
+                    p.StartInfo.Arguments = "/C \"" + command + (String.IsNullOrEmpty(arguments)?"":" " + arguments) + "\"";
                 }
                 else
                 {
                     p.StartInfo.FileName = "sh";
-                    String command = "echo '" + text + "' "
-                                     + "| '" + _piperCmd.FullName + "'"
-                                     + " --model '" + modelPath + "'"
-                                     + " --output-file '" + outputPath + "'";
-                    p.StartInfo.Arguments = "-c \"" + command + "\"";
+                    p.StartInfo.Arguments = "-c \"" + command + (String.IsNullOrEmpty(arguments)?"":" " + arguments) + "\"";
                 }
 
                 p.Start();
-                p.WaitForExit(1000);
+                if(Timeout<1)
+                    p.WaitForExit();
+                else
+                    p.WaitForExit(Timeout);
+                
+                return p.ExitCode;
             }
         }
-
-        private FileInfo GetTempFile()
-        {
-            return new FileInfo(Path.GetTempPath() + Path.DirectorySeparatorChar + Guid.NewGuid());
-        }
+        
         private void FindVoices()
         {
             _voices = new List<PiperVoice>();
@@ -116,10 +136,18 @@ namespace DotNetTtsDeepSpeech.Imp
             folder.GetDirectories().ToList().ForEach(d=>FindVoices(d, voices));
         }
 
-        public static PiperTtsEngine Instance(FileInfo piperCmd, DirectoryInfo basePiperLanguages)
+        public static TtsEngine Instance(FileInfo piperCmd, DirectoryInfo basePiperLanguages)
         {
             if (_instance == null)
                 _instance = new PiperTtsEngine(piperCmd, basePiperLanguages);
+
+            return _instance;
+        }
+        
+        public static TtsEngine Instance()
+        {
+            if (_instance == null)
+                throw new TtsEngineException("Please, initialize instance before with parameters.");
 
             return _instance;
         }

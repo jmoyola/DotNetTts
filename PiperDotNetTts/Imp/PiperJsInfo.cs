@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace DotNetTtsDeepSpeech.Imp
+namespace PiperDotNetTts.Imp
 {
     public class PiperJsInfo
     {

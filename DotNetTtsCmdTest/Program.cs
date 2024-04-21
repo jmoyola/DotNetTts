@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using DotNetTts.Core;
-using DotNetTtsDeepSpeech.Imp;
+using PiperDotNetTts.Imp;
 
 namespace DotNetTtsCmdTest
 {
@@ -16,9 +16,9 @@ namespace DotNetTtsCmdTest
             DirectoryInfo cachedVoices = new DirectoryInfo("/home/jmoyola/Downloads/TtsCached");
             
             TtsEngine ttsEngine = PiperTtsEngine.Instance(piperCmd, piperVoices);
-            ttsEngine = new CachedTtsEngine(ttsEngine, cachedVoices);
+            //ttsEngine = new CachedTtsEngine(ttsEngine, cachedVoices);
             
-            Console.WriteLine("Languages available: " + String.Join(", ",  ttsEngine.Languages.Select(v => v.Name)));
+            Console.WriteLine("Languages available: " + String.Join(", ",  ttsEngine.Voices.Select(v => v.ToString())));
             Console.WriteLine("Languages available: " + ttsEngine.Speech("tudo ben", CultureInfo.GetCultureInfo("pt-BR")));
         }
     }

@@ -5,8 +5,9 @@ using System.IO;
 
 namespace DotNetTts.Core
 {
-    public abstract class TtsEngine:Tts
+    public abstract class TtsEngine:Tts, ITtsEngine
     {
-        public abstract IEnumerable<CultureInfo> Languages { get; }
+        public int Timeout { get; set; } = 0;
+        public abstract IEnumerable<TtsVoiceInfo> Voices { get; }
     }
 }
