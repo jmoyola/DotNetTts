@@ -83,8 +83,10 @@ namespace PiperDotNetTtsTest
             
             TtsEngine ttsEngine1 =new CachedTtsEngine(PiperTtsEngine.Instance(_piperCmd, _piperVoices), cacheBaseDir);
             
-            TempFile f1=ttsEngine1.Speech("Hello", CultureInfo.GetCultureInfo("en-GB"));
-            TempFile f2=ttsEngine1.Speech("Hello", CultureInfo.GetCultureInfo("en-GB"));
+            var voiceInfo = ttsEngine1.Voices.FirstOrDefault(v => v.Culture.Equals(CultureInfo.GetCultureInfo("en-GB")));
+            
+            TempFile f1=ttsEngine1.Speech("Hello",voiceInfo);
+            TempFile f2=ttsEngine1.Speech("Hello", voiceInfo);
             
             Assert.True(f1.Equals(f2));
         }

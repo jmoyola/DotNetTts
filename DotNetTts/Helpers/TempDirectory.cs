@@ -60,9 +60,9 @@ namespace DotNetTts.Helpers
             return new TempDirectory(v);
         }
         
-        public static TempDirectory Create()
+        public static TempDirectory Create(String extension=null)
         {
-            return new TempDirectory(new DirectoryInfo(Path.GetTempPath() + Guid.NewGuid()));
+            return new TempDirectory(new DirectoryInfo(Path.GetTempPath() + Guid.NewGuid() + extension));
         }
     }
 }

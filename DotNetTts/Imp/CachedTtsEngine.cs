@@ -35,18 +35,18 @@ namespace DotNetTts.Imp
 
         public override IEnumerable<TtsVoiceInfo> Voices => _engine.Voices;
 
-        public override FileInfo Speech(String text, CultureInfo culture, TtsProperties ttsProperties = null)
+        public override FileInfo Speech(String text, TtsVoiceInfo voiceInfo, TtsProperties ttsProperties = null)
         {
             if (String.IsNullOrEmpty(text))
                 throw new ArgumentNullException(nameof(text));
             
-            if (culture == null)
-                throw new ArgumentNullException(nameof(culture));
+            if (voiceInfo == null)
+                throw new ArgumentNullException(nameof(voiceInfo));
             
             ttsProperties= ttsProperties??TtsProperties.Default;
 
             DirectoryInfo bd = new DirectoryInfo(_rootCacheDirectory.FullName
-                                                 + Path.DirectorySeparatorChar + (string.IsNullOrEmpty(culture.Name)?"_":culture.Name));
+                                                 + Path.DirectorySeparatorChar + voiceInfo);
             if (!bd.Exists)
                 Directory.CreateDirectory(bd.FullName);
             
@@ -54,19 +54,19 @@ namespace DotNetTts.Imp
 
             FileInfo cacheDestination = new FileInfo(bd.FullName + Path.DirectorySeparatorChar + hashName);
             
-            Speech(text, culture, cacheDestination, ttsProperties);
+            Speech(text, voiceInfo, cacheDestination, ttsProperties);
             
             return cacheDestination;
         }
 
         
-        public override void Speech(String text, CultureInfo culture, FileInfo outputWavFile, TtsProperties ttsProperties=null)
+        public override void Speech(String text, TtsVoiceInfo voiceInfo, FileInfo outputWavFile, TtsProperties ttsProperties=null)
         {
             if (String.IsNullOrEmpty(text))
                 throw new ArgumentNullException(nameof(text));
             
-            if (culture == null)
-                throw new ArgumentNullException(nameof(culture));
+            if (voiceInfo == null)
+                throw new ArgumentNullException(nameof(voiceInfo));
             
             if (outputWavFile == null)
                 throw new ArgumentNullException(nameof(outputWavFile));
@@ -74,7 +74,7 @@ namespace DotNetTts.Imp
             ttsProperties= ttsProperties??TtsProperties.Default;
 
             DirectoryInfo bd = new DirectoryInfo(_rootCacheDirectory.FullName
-                               + Path.DirectorySeparatorChar + (string.IsNullOrEmpty(culture.Name)?"_":culture.Name));
+                               + Path.DirectorySeparatorChar + voiceInfo);
             if (!bd.Exists)
                 Directory.CreateDirectory(bd.FullName);
             
@@ -82,7 +82,7 @@ namespace DotNetTts.Imp
 
             FileInfo cacheDestination = new FileInfo(bd.FullName + Path.DirectorySeparatorChar + hashName);
             if (!cacheDestination.Exists)
-                _engine.Speech(text, culture, cacheDestination, ttsProperties);
+                _engine.Speech(text, voiceInfo, cacheDestination, ttsProperties);
 
             if(cacheDestination.FullName.Equals(outputWavFile.FullName))
                 cacheDestination.CopyTo(outputWavFile.FullName);

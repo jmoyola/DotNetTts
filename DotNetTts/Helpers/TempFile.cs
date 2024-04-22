@@ -60,9 +60,9 @@ namespace DotNetTts.Helpers
             return new TempFile(v);
         }
         
-        public static TempFile Create()
+        public static TempFile Create(String extension=null)
         {
-            return new TempFile(new FileInfo(Path.GetTempPath() + Guid.NewGuid()));
+            return new TempFile(new FileInfo(Path.GetTempPath() + Guid.NewGuid() + extension));
         }
     }
 }

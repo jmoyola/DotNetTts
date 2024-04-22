@@ -103,7 +103,9 @@ namespace PiperDotNetTtsTest
         {
             TtsEngine ttsEngine1 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
 
-            using TempFile f=ttsEngine1.Speech("Hello", CultureInfo.GetCultureInfo("en-GB"));
+            var voiceInfo = ttsEngine1.Voices.FirstOrDefault(v => v.Culture.Equals(CultureInfo.GetCultureInfo("en-GB")));
+            
+            using TempFile f=ttsEngine1.Speech("Hello", voiceInfo);
             
             Assert.True(f!=null && f.File.Length>0);
         }

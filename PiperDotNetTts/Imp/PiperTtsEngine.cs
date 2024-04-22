@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using DotNetTts.Core;
+using DotNetTts.Helpers;
 using Newtonsoft.Json;
 
 namespace PiperDotNetTts.Imp
@@ -12,7 +13,8 @@ namespace PiperDotNetTts.Imp
     public class PiperTtsEngine:TtsEngine
     {
         private static TtsEngine _instance;
-        private List<PiperVoice> _voices; 
+        private List<PiperVoice> _piperVoices; 
+        private IEnumerable<TtsVoiceInfo> _voices;
         private readonly FileInfo _piperCmd;
 
         private readonly DirectoryInfo _basePiperLanguages;
@@ -32,29 +34,40 @@ namespace PiperDotNetTts.Imp
             FindVoices();
         }
         
-        public override void Speech(string text, CultureInfo culture, FileInfo outputWavFile, TtsProperties ttsProperties = null)
+        public override FileInfo Speech(String text, TtsVoiceInfo voiceInfo, TtsProperties ttsProperties = null)
+        {
+            TempFile tempFile = TempFile.Create(".wav");
+            Speech(text, voiceInfo, tempFile, ttsProperties);
+            return tempFile;
+        }
+        
+        public override void Speech(string text, TtsVoiceInfo voiceInfo, FileInfo outputWavFile, TtsProperties ttsProperties = null)
         {
             if (text == null)
                 throw new ArgumentNullException(nameof(text));
             
-            if (culture == null)
-                throw new ArgumentNullException(nameof(culture));
+            if (voiceInfo == null)
+                throw new ArgumentNullException(nameof(voiceInfo));
             
             if (outputWavFile == null)
                 throw new ArgumentNullException(nameof(outputWavFile));
             
-            PiperVoice pv = _voices.Find(v => v.Language.Equals(culture));
-            if (pv == null)
-                throw new TtsEngineException($"Culture '{culture}' is not available.");
+            TtsVoiceInfo vi = _voices.FirstOrDefault(v => v.Equals(voiceInfo));
+            
+            if (vi == null)
+                throw new TtsEngineException($"Voice '{voiceInfo}' is not available.");
 
-            ExecutePiper(text, pv.LanguageFile, outputWavFile);
+            ExecutePiper(text, new FileInfo(vi.Path), outputWavFile);
         }
 
         public override IEnumerable<TtsVoiceInfo> Voices
         {
             get
             {
-                return _voices.Select(v => new TtsVoiceInfo(v.LanguageFile.Name, v.Info.Dataset, v.Language));
+                if(_voices==null)
+                    _voices= _piperVoices.Select(v => new TtsVoiceInfo(v.LanguageFile.FullName, v.Language, v.Info.Dataset, v.Info.Audio.Quality));
+
+                return _voices;
             }
         }
 
@@ -65,10 +78,10 @@ namespace PiperDotNetTts.Imp
             if (Environment.OSVersion.Platform.ToString()
                 .StartsWith("win", StringComparison.InvariantCultureIgnoreCase))
             {
-                command="echo '" + text + "'"
-                                     + " | '" + _piperCmd.FullName + "'"
-                                     + " --model '" + modelPath + "'"
-                                     + " --output-file '" + outputPath + "'";
+                command="echo \"" + text + "\""
+                                     + " | \"" + _piperCmd.FullName + "\""
+                                     + " --model \"" + modelPath + "\""
+                                     + " --output-file \"" + outputPath + "\"";
             }
             else
             {
@@ -87,15 +100,16 @@ namespace PiperDotNetTts.Imp
         {
             using (Process p = new Process())
             {
-                p.StartInfo.UseShellExecute = true;
                 if (Environment.OSVersion.Platform.ToString()
                     .StartsWith("win", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    p.StartInfo.FileName = "cmd";
-                    p.StartInfo.Arguments = "/C \"" + command + (String.IsNullOrEmpty(arguments)?"":" " + arguments) + "\"";
+                    p.StartInfo.UseShellExecute = false;
+                    p.StartInfo.FileName = "CMD";
+                    p.StartInfo.Arguments = "/C " + command + (String.IsNullOrEmpty(arguments)?"":" " + arguments);
                 }
                 else
                 {
+                    p.StartInfo.UseShellExecute = true;
                     p.StartInfo.FileName = "sh";
                     p.StartInfo.Arguments = "-c \"" + command + (String.IsNullOrEmpty(arguments)?"":" " + arguments) + "\"";
                 }
@@ -112,12 +126,12 @@ namespace PiperDotNetTts.Imp
         
         private void FindVoices()
         {
-            _voices = new List<PiperVoice>();
-            FindVoices(_basePiperLanguages, _voices);
+            _piperVoices = new List<PiperVoice>();
+            FindVoices(_basePiperLanguages, _piperVoices);
             
             JsonSerializer jss = JsonSerializer.Create();
             
-            foreach (PiperVoice pv in _voices)
+            foreach (PiperVoice pv in _piperVoices)
             {
                 FileInfo jsonPiperVoiceFile = new FileInfo(pv.LanguageFile.FullName + ".json");
                 
@@ -132,7 +146,9 @@ namespace PiperDotNetTts.Imp
         
         private void FindVoices(DirectoryInfo folder, List<PiperVoice> voices)
         {
-            voices.AddRange(folder.GetFiles("*.onnx").Select(v=>new PiperVoice(){LanguageFile=v}));
+            voices.AddRange(folder.GetFiles("*.onnx")
+                .Where(v=>v.Directory.GetFiles(v.Name+".json").Any())
+                .Select(v=>new PiperVoice(){LanguageFile=v}));
             folder.GetDirectories().ToList().ForEach(d=>FindVoices(d, voices));
         }
 

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace DotNetTts.Helpers
@@ -22,19 +24,19 @@ namespace DotNetTts.Helpers
     
     public abstract class BaseReadOnlyProperties
     {
-        protected readonly IDictionary<String, Object> Properties;
+        protected readonly IDictionary<String, Object> InternalProperties;
         protected BaseReadOnlyProperties(IDictionary<String, Object> properties)
         {
-            Properties = properties ?? throw new ArgumentNullException(nameof(properties));
+            InternalProperties = properties ?? throw new ArgumentNullException(nameof(properties));
         }
 
         public bool TryGetValue<T>(String key, out T output)
         {
             output = default(T);
             
-            if (Properties.ContainsKey(key))
+            if (InternalProperties.ContainsKey(key))
             {
-                output = (T) Properties[key];
+                output = (T) InternalProperties[key];
                 return true;
             }
 
@@ -43,7 +45,21 @@ namespace DotNetTts.Helpers
 
         public T GetValue<T>(String key)
         {
-            return (T) Properties[key];
+            return (T) InternalProperties[key];
         }
+
+        public IReadOnlyList<String> Keys =>
+            InternalProperties.Keys.ToList().AsReadOnly();
+        
+        public Type GetType(String key)
+        {
+            return InternalProperties[key].GetType();
+        }
+        
+        public bool ContainsKey(String key)
+        {
+            return InternalProperties.ContainsKey(key);
+        }
+
     }
 }

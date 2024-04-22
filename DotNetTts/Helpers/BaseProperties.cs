@@ -10,16 +10,16 @@ namespace DotNetTts.Helpers
         
         public bool SetValue(String key, Object value)
         {
-            if (!Properties.ContainsKey(key))
+            if (!InternalProperties.ContainsKey(key))
                 throw new TtsPropertiesException($"Property with name '{key}' don't exists.");
             
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
             
-            Type t = Properties[key].GetType();
+            Type t = InternalProperties[key].GetType();
             try
             {
-                Properties[key] = Convert.ChangeType(value, t);
+                InternalProperties[key] = Convert.ChangeType(value, t);
             }
             catch(Exception ex)
             {

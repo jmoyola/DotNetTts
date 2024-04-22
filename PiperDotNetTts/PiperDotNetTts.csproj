@@ -9,11 +9,11 @@
 	</PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <ProjectReference Include="..\DotNetTts\DotNetTts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DotNetTts\DotNetTts.csproj" />
+      <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     </ItemGroup>
 
 </Project>

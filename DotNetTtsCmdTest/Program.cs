@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using DotNetTts.Core;
 using PiperDotNetTts.Imp;
 
@@ -11,15 +12,52 @@ namespace DotNetTtsCmdTest
     {
         public static void Main(string[] args)
         {
-            FileInfo piperCmd = new FileInfo("/home/jmoyola/.local/bin/piper");
-            DirectoryInfo piperVoices = new DirectoryInfo("/home/jmoyola/Downloads/piper_voices");
-            DirectoryInfo cachedVoices = new DirectoryInfo("/home/jmoyola/Downloads/TtsCached");
+            FileInfo piperCmd;
+            DirectoryInfo piperHome;
+            DirectoryInfo piperVoices;
+            DirectoryInfo cachedVoices;
+
+            DirectoryInfo userHome=new DirectoryInfo(Environment.OSVersion.Platform.ToString().StartsWith("win", StringComparison.CurrentCultureIgnoreCase)?
+                Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%"):
+                Environment.GetEnvironmentVariable("$HOME")
+                );
+
+            piperHome= new DirectoryInfo(userHome.FullName
+                           + Path.DirectorySeparatorChar + "software"
+                           + Path.DirectorySeparatorChar + "piper"
+            );
             
+            if (Environment.OSVersion.Platform.ToString().StartsWith("win", StringComparison.CurrentCultureIgnoreCase))
+            {
+                piperCmd = new FileInfo(piperHome.FullName
+                    + Path.DirectorySeparatorChar + "binaries"
+                    + Path.DirectorySeparatorChar + "Win_" + RuntimeInformation.OSArchitecture
+                    + Path.DirectorySeparatorChar + "piper.exe"
+                );
+            }
+            else
+            {
+                piperCmd = new FileInfo(piperHome.FullName
+                    + Path.DirectorySeparatorChar + "binaries"
+                    + Path.DirectorySeparatorChar + "Linux_" + RuntimeInformation.OSArchitecture
+                    + Path.DirectorySeparatorChar + "piper"
+                );            }
+
+            piperVoices = new DirectoryInfo(piperHome.FullName
+                                            + Path.DirectorySeparatorChar + "voices"
+            );
+                
+            cachedVoices = new DirectoryInfo(userHome.FullName
+                                             + Path.DirectorySeparatorChar + "ttsCache"
+            );
+
             TtsEngine ttsEngine = PiperTtsEngine.Instance(piperCmd, piperVoices);
             //ttsEngine = new CachedTtsEngine(ttsEngine, cachedVoices);
-            
-            Console.WriteLine("Languages available: " + String.Join(", ",  ttsEngine.Voices.Select(v => v.ToString())));
-            Console.WriteLine("Languages available: " + ttsEngine.Speech("tudo ben", CultureInfo.GetCultureInfo("pt-BR")));
+
+            var voices = ttsEngine.Voices;
+            Console.WriteLine("Languages available: " + String.Join(", ",  voices.Select(v => v.ToString())));
+            var voiceInfo = voices.FirstOrDefault(v => v.Culture.Equals(CultureInfo.GetCultureInfo("pt-BR")));
+            Console.WriteLine("Languages available: " + ttsEngine.Speech("tudo ben", voiceInfo));
         }
     }
 }
