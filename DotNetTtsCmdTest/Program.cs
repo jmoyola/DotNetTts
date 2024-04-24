@@ -19,7 +19,7 @@ namespace DotNetTtsCmdTest
 
             DirectoryInfo userHome=new DirectoryInfo(Environment.OSVersion.Platform.ToString().StartsWith("win", StringComparison.CurrentCultureIgnoreCase)?
                 Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%"):
-                Environment.GetEnvironmentVariable("$HOME")
+                Environment.GetEnvironmentVariable("HOME")
                 );
 
             piperHome= new DirectoryInfo(userHome.FullName
