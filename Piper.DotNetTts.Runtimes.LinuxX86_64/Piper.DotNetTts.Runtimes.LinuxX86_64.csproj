@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <RootNamespace>Piper.DotNetTts.Runtimes</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="runtimes\linux\x86_64\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PiperDotNetTts\PiperDotNetTts.csproj" />
+    </ItemGroup>
+
+</Project>
