@@ -10,7 +10,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DotNetTts\DotNetTts.csproj" />
-      <ProjectReference Include="..\PiperDotNetTts.runtime.win-x64\PiperDotNetTts.runtime.win-x64.csproj" />
+      <ProjectReference Include="..\Piper.DotNetTts.Runtimes.LinuxX86_64\Piper.DotNetTts.Runtimes.LinuxX86_64.csproj" />
+      <ProjectReference Include="..\Piper.DotNetTts.Runtimes.WinX64\Piper.DotNetTts.Runtimes.WinX64.csproj" />
       <ProjectReference Include="..\PiperDotNetTts\PiperDotNetTts.csproj" />
     </ItemGroup>
 

@@ -2,14 +2,14 @@
 
     <PropertyGroup>
         <RootNamespace>Piper.DotNetTts.Runtimes</RootNamespace>
-        <TargetFrameworks>netstandard2.0;net7.0;net8.0;net481</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="runtimes\**">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      <Content Include="runtimes\**" CopyToOutputDirectory="PreserveNewest">
+		  <PackageCopyToOutput>true</PackageCopyToOutput>
+	  </Content>
     </ItemGroup>
 
 
