@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+    <Description>win x64 native runtime for Piper. This is an internal implementation package not meant for direct consumption.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+	<ItemGroup>
+      <Content Include="piper\**" PackagePath="runtimes\win-x64\native"
+             TargetPath="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+	</ItemGroup>
+	
+
+
+</Project>
