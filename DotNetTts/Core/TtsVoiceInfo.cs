@@ -34,7 +34,7 @@ namespace DotNetTts.Core
         
         public CultureInfo Culture=>this.GetValue<CultureInfo>("culture");
         
-        public string Name => this.GetValue<String>("dataset");
+        public string Name => this.GetValue<String>("name");
         
         public string Quality => this.GetValue<String>("quality");
         

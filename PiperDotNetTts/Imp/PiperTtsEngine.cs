@@ -7,6 +7,7 @@ using System.Linq;
 using DotNetTts.Core;
 using DotNetTts.Helpers;
 using Newtonsoft.Json;
+using PiperDotNetTts.Core;
 
 namespace PiperDotNetTts.Imp
 {
@@ -18,6 +19,31 @@ namespace PiperDotNetTts.Imp
         private readonly FileInfo _piperCmd;
 
         private readonly DirectoryInfo _basePiperLanguages;
+
+        private PiperTtsEngine(DirectoryInfo basePiperLanguages)
+        {
+            
+            IEnumerable<IPiperRuntimeInfo> rtis = Plugins.AvailableInstances<PiperRuntimeInfo>();
+
+            IPiperRuntimeInfo rti = rtis.FirstOrDefault(v => v.IsCompatible);
+
+            if (rti == null)
+                throw new TtsEngineException($"Can't find a available plugin for '{RuntimeInfo.OsPlatform}{RuntimeInfo.OsArchitecture}'." );
+            
+            FileInfo piperCmd=new FileInfo(AppContext.BaseDirectory + rti.PiperCmdPath);
+            
+            if (!piperCmd.Exists)
+                throw new TtsEngineException($"Piper cmd path '{piperCmd}' is null or not exists.");
+
+            if (basePiperLanguages == null || !basePiperLanguages.Exists)
+                throw new TtsEngineException($"Base Piper languages path '{basePiperLanguages}' is null or not exists.");
+            
+            
+            _piperCmd = piperCmd;
+            _basePiperLanguages = basePiperLanguages;
+
+            FindVoices();
+        }
         
         private PiperTtsEngine(FileInfo piperCmd, DirectoryInfo basePiperLanguages)
         {
@@ -156,6 +182,14 @@ namespace PiperDotNetTts.Imp
         {
             if (_instance == null)
                 _instance = new PiperTtsEngine(piperCmd, basePiperLanguages);
+
+            return _instance;
+        }
+        
+        public static TtsEngine Instance(DirectoryInfo basePiperLanguages)
+        {
+            if (_instance == null)
+                _instance = new PiperTtsEngine(basePiperLanguages);
 
             return _instance;
         }

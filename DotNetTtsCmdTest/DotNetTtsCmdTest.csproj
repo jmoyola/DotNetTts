@@ -34,8 +34,8 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-          <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+        <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+          <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
@@ -51,12 +51,21 @@
         <Project>{e368c1ca-2d6e-4846-9e0f-25d2aa86a493}</Project>
         <Name>DotNetTts</Name>
       </ProjectReference>
+      <ProjectReference Include="..\Piper.DotNetTts.Runtimes.LinuxX86_64\Piper.DotNetTts.Runtimes.LinuxX86_64.csproj">
+        <Project>{54bcb0e4-3013-4109-bd8d-8d5d3298783a}</Project>
+        <Name>Piper.DotNetTts.Runtimes.LinuxX86_64</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\Piper.DotNetTts.Runtimes.WinX64\Piper.DotNetTts.Runtimes.WinX64.csproj">
+        <Project>{916a54bc-710d-49b3-9832-e82e2e64e16e}</Project>
+        <Name>Piper.DotNetTts.Runtimes.WinX64</Name>
+      </ProjectReference>
       <ProjectReference Include="..\PiperDotNetTts\PiperDotNetTts.csproj">
         <Project>{1427e85e-bdcf-4133-9753-484dc8ef571a}</Project>
         <Name>PiperDotNetTts</Name>
       </ProjectReference>
     </ItemGroup>
     <ItemGroup>
+      <None Include="App.config" />
       <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

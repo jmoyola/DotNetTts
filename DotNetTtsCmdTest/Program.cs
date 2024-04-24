@@ -51,7 +51,9 @@ namespace DotNetTtsCmdTest
                                              + Path.DirectorySeparatorChar + "ttsCache"
             );
 
-            TtsEngine ttsEngine = PiperTtsEngine.Instance(piperCmd, piperVoices);
+            TtsEngine ttsEngine;
+            ttsEngine = PiperTtsEngine.Instance(piperVoices);
+            //ttsEngine = PiperTtsEngine.Instance(piperCmd, piperVoices);
             //ttsEngine = new CachedTtsEngine(ttsEngine, cachedVoices);
 
             var voices = ttsEngine.Voices;

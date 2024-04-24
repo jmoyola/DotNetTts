@@ -1,16 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>Piper.DotNetTts.Runtimes</RootNamespace>
+        <TargetFrameworks>netstandard2.0;net7.0;net8.0;net481</TargetFrameworks>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="runtimes\win_x64\pipper\" />
+      <Content Include="runtimes\**">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
+
 
     <ItemGroup>
       <ProjectReference Include="..\PiperDotNetTts\PiperDotNetTts.csproj" />
     </ItemGroup>
+	
+	<PropertyGroup>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+    </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="docs\readme.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
 
 </Project>
