@@ -12,28 +12,28 @@ namespace DotNetTts.Imp
     {
         private readonly TtsEngine _engine;
         private readonly DirectoryInfo _rootCacheDirectory;
-        private readonly HashAlgorithm hashAlgorithm;
-        
+        private readonly HashAlgorithm _hashAlgorithm;
+        private TimeSpan _timeOfLife=TimeSpan.Zero;
         
         public CachedTtsEngine(TtsEngine engine, DirectoryInfo rootCacheDirectory)
         {
-            if (engine == null)
-                throw new ArgumentNullException(nameof(engine));
-            
-            if (rootCacheDirectory == null)
-                throw new ArgumentNullException(nameof(rootCacheDirectory));
-
-            _engine = engine;
-            _rootCacheDirectory = rootCacheDirectory;
+            _engine=engine??throw new ArgumentNullException(nameof(engine));
+            _rootCacheDirectory=rootCacheDirectory??throw new ArgumentNullException(nameof(rootCacheDirectory));
             
             if (!rootCacheDirectory.Exists)
                 Directory.CreateDirectory(rootCacheDirectory.FullName);
             
-            hashAlgorithm = HashAlgorithm.Create("SHA256");
-            hashAlgorithm.Initialize();
+            _hashAlgorithm = HashAlgorithm.Create("SHA256");
+            _hashAlgorithm?.Initialize();
         }
 
         public override IEnumerable<TtsVoiceInfo> Voices => _engine.Voices;
+
+        public TimeSpan TimeOfLife
+        {
+            get => _timeOfLife;
+            set => _timeOfLife=value;
+        }
 
         public override FileInfo Speech(String text, TtsVoiceInfo voiceInfo, TtsProperties ttsProperties = null)
         {
@@ -50,42 +50,26 @@ namespace DotNetTts.Imp
             if (!bd.Exists)
                 Directory.CreateDirectory(bd.FullName);
             
-            String hashName=BitConverter.ToString(hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-","");
+            String hashName=BitConverter.ToString(_hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-","");
 
             FileInfo cacheDestination = new FileInfo(bd.FullName + Path.DirectorySeparatorChar + hashName);
             
-            Speech(text, voiceInfo, cacheDestination, ttsProperties);
+            if (!cacheDestination.Exists
+                || (_timeOfLife>TimeSpan.Zero
+                    && DateTime.UtcNow.Subtract(cacheDestination.CreationTimeUtc) >_timeOfLife))
+                _engine.Speech(text, voiceInfo, cacheDestination, ttsProperties);
             
             return cacheDestination;
         }
-
         
         public override void Speech(String text, TtsVoiceInfo voiceInfo, FileInfo outputWavFile, TtsProperties ttsProperties=null)
         {
-            if (String.IsNullOrEmpty(text))
-                throw new ArgumentNullException(nameof(text));
-            
-            if (voiceInfo == null)
-                throw new ArgumentNullException(nameof(voiceInfo));
-            
-            if (outputWavFile == null)
+            if(outputWavFile==null)
                 throw new ArgumentNullException(nameof(outputWavFile));
             
-            ttsProperties= ttsProperties??TtsProperties.Default;
-
-            DirectoryInfo bd = new DirectoryInfo(_rootCacheDirectory.FullName
-                               + Path.DirectorySeparatorChar + voiceInfo);
-            if (!bd.Exists)
-                Directory.CreateDirectory(bd.FullName);
-            
-            String hashName=BitConverter.ToString(hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-","");
-
-            FileInfo cacheDestination = new FileInfo(bd.FullName + Path.DirectorySeparatorChar + hashName);
-            if (!cacheDestination.Exists)
-                _engine.Speech(text, voiceInfo, cacheDestination, ttsProperties);
-
-            if(cacheDestination.FullName.Equals(outputWavFile.FullName))
-                cacheDestination.CopyTo(outputWavFile.FullName);
+            FileInfo voiceFile=Speech(text, voiceInfo, ttsProperties);
+            if(!voiceFile.FullName.Equals(outputWavFile.FullName))
+                voiceFile.CopyTo(outputWavFile.FullName, true);
         }
 
         public void InvalidCache(CultureInfo culture=null)
