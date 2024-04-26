@@ -46,7 +46,8 @@ namespace DotNetTts.Imp
             ttsProperties= ttsProperties??TtsProperties.Default;
 
             DirectoryInfo bd = new DirectoryInfo(_rootCacheDirectory.FullName
-                                                 + Path.DirectorySeparatorChar + voiceInfo);
+                                                 + Path.DirectorySeparatorChar + voiceInfo.Culture.Name
+                                                 + Path.DirectorySeparatorChar + voiceInfo.Name);
             if (!bd.Exists)
                 Directory.CreateDirectory(bd.FullName);
             
@@ -74,7 +75,9 @@ namespace DotNetTts.Imp
             ttsProperties= ttsProperties??TtsProperties.Default;
 
             DirectoryInfo bd = new DirectoryInfo(_rootCacheDirectory.FullName
-                               + Path.DirectorySeparatorChar + voiceInfo);
+                                                 + Path.DirectorySeparatorChar + voiceInfo.Culture.Name
+                                                 + Path.DirectorySeparatorChar + voiceInfo.Name);
+            
             if (!bd.Exists)
                 Directory.CreateDirectory(bd.FullName);
             
@@ -84,8 +87,8 @@ namespace DotNetTts.Imp
             if (!cacheDestination.Exists)
                 _engine.Speech(text, voiceInfo, cacheDestination, ttsProperties);
 
-            if(cacheDestination.FullName.Equals(outputWavFile.FullName))
-                cacheDestination.CopyTo(outputWavFile.FullName);
+            if(!cacheDestination.FullName.Equals(outputWavFile.FullName))
+                cacheDestination.CopyTo(outputWavFile.FullName, true);
         }
 
         public void InvalidCache(CultureInfo culture=null)

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 namespace DotNetTts.Core;
 
+[ExcludeFromCodeCoverage]
 [Serializable]
 public class SoundPlayerException : Exception
 {

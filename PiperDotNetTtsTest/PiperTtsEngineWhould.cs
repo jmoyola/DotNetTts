@@ -11,36 +11,27 @@ namespace PiperDotNetTtsTest
 {
     public class PiperTtsEngineWhould
     {
-        private readonly FileInfo _piperCmd;
-        private readonly DirectoryInfo _piperVoices;
-        private readonly String _platform;
-        private readonly DirectoryInfo _baseDir;
+        protected readonly DirectoryInfo _piperVoices;
+        protected readonly DirectoryInfo _baseDir;
         public PiperTtsEngineWhould()
         {
-            _platform =
-                Environment.OSVersion.Platform.ToString().StartsWith("win", StringComparison.InvariantCultureIgnoreCase)
-                    ? "Win"
-                    : "Linux";
-            
             _baseDir = new DirectoryInfo(Directory.GetCurrentDirectory());
-            _piperCmd =new FileInfo(_baseDir.FullName
-                + Path.DirectorySeparatorChar + "resources"
-                + Path.DirectorySeparatorChar + "bin"
-                + Path.DirectorySeparatorChar + _platform
-                + Path.DirectorySeparatorChar + "piper"
-                + Path.DirectorySeparatorChar + "piper" + (_platform.Equals("Win")?".exe":null)
-            );
             
             _piperVoices = new DirectoryInfo(_baseDir.FullName
                 + Path.DirectorySeparatorChar + "resources"
                 + Path.DirectorySeparatorChar + "voices"
             );
         }
+
+        public virtual TtsEngine GetTtsEngine(TempDirectory cacheBaseDir=null)
+        {
+            return PiperTtsEngine.Instance(_piperVoices);
+        }
         
         [Fact]
         public void PiperTtsEngineInstanceReturnInstance()
         {
-            TtsEngine ttsEngine1 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
+            TtsEngine ttsEngine1 = GetTtsEngine();
             
             Assert.IsType<PiperTtsEngine>(ttsEngine1);
         }
@@ -48,8 +39,8 @@ namespace PiperDotNetTtsTest
         [Fact]
         public void PiperTtsEngineInstanceWithParametersReturnOnlyInstance()
         {
-            TtsEngine ttsEngine1 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
-            TtsEngine ttsEngine2 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
+            TtsEngine ttsEngine1 = GetTtsEngine();
+            TtsEngine ttsEngine2 = GetTtsEngine();
             
             Assert.Equal(ttsEngine1, ttsEngine2);
         }
@@ -57,7 +48,7 @@ namespace PiperDotNetTtsTest
         [Fact]
         public void PiperTtsEngineInstanceReturnOnlyInstance()
         {
-            TtsEngine ttsEngine1 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
+            TtsEngine ttsEngine1 = GetTtsEngine();
             TtsEngine ttsEngine2 = PiperTtsEngine.Instance();
             
             Assert.Equal(ttsEngine1, ttsEngine2);
@@ -72,7 +63,7 @@ namespace PiperDotNetTtsTest
         [Fact]
         public void PiperTtsEngineVoicesReturnNotNull()
         {
-            TtsEngine ttsEngine1 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
+            TtsEngine ttsEngine1 = GetTtsEngine();
             
             Assert.NotNull(ttsEngine1.Voices);
         }
@@ -80,7 +71,7 @@ namespace PiperDotNetTtsTest
         [Fact]
         public void PiperTtsEngineVoicesReturnTwoLanguages()
         {
-            TtsEngine ttsEngine1 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
+            TtsEngine ttsEngine1 = GetTtsEngine();
             
             Assert.True(ttsEngine1.Voices.Count()==2);
         }
@@ -101,7 +92,7 @@ namespace PiperDotNetTtsTest
         [Fact]
         public void PiperTtsEngineSpeechReturnWavFile()
         {
-            TtsEngine ttsEngine1 = PiperTtsEngine.Instance(_piperCmd, _piperVoices);
+            TtsEngine ttsEngine1 = GetTtsEngine();
 
             var voiceInfo = ttsEngine1.Voices.FirstOrDefault(v => v.Culture.Equals(CultureInfo.GetCultureInfo("en-GB")));
             
