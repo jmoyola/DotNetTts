@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using DotNetTts.Core;
+using FfPlay.DotNetTts.Runtimes.Imp;
 using PiperDotNetTts.Imp;
 
 namespace DotNetTtsCmdTest
@@ -12,6 +13,8 @@ namespace DotNetTtsCmdTest
     {
         public static void Main(string[] args)
         {
+            SoundPlayer sp = FfPlaySoundPlayer.Instance();
+            
             FileInfo piperCmd;
             DirectoryInfo piperHome;
             DirectoryInfo piperVoices;
@@ -59,7 +62,10 @@ namespace DotNetTtsCmdTest
             var voices = ttsEngine.Voices;
             Console.WriteLine("Languages available: " + String.Join(", ",  voices.Select(v => v.ToString())));
             var voiceInfo = voices.FirstOrDefault(v => v.Culture.Equals(CultureInfo.GetCultureInfo("pt-BR")));
-            Console.WriteLine("Languages available: " + ttsEngine.Speech("tudo ben", voiceInfo));
+            FileInfo speechFile = ttsEngine.Speech("tudo ben", voiceInfo);
+            Console.WriteLine("Languages available: " + speechFile.FullName);
+            
+            sp.Play(speechFile.FullName);
         }
     }
 }

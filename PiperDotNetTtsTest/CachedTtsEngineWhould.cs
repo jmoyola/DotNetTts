@@ -12,28 +12,13 @@ namespace PiperDotNetTtsTest
 {
     public class CachedTtsEngineWhould
     {
-        private readonly FileInfo _piperCmd;
         private readonly DirectoryInfo _piperVoices;
-        private readonly String _platform;
         private readonly DirectoryInfo _baseDir;
         
         public CachedTtsEngineWhould()
         {
-            _platform =
-                Environment.OSVersion.Platform.ToString().StartsWith("win", StringComparison.InvariantCultureIgnoreCase)
-                    ? "Win"
-                    : "Linux";
-
             
-                
             _baseDir = new DirectoryInfo(Directory.GetCurrentDirectory());
-            _piperCmd =new FileInfo(_baseDir.FullName
-                + Path.DirectorySeparatorChar + "resources"
-                + Path.DirectorySeparatorChar + "bin"
-                + Path.DirectorySeparatorChar + _platform
-                + Path.DirectorySeparatorChar + "piper"
-                + Path.DirectorySeparatorChar + "piper" + (_platform.Equals("Win")?".exe":null)
-            );
             
             _piperVoices = new DirectoryInfo(_baseDir.FullName
                 + Path.DirectorySeparatorChar + "resources"
@@ -46,7 +31,7 @@ namespace PiperDotNetTtsTest
         {
             using TempDirectory cacheBaseDir = TempDirectory.Create();
             
-            TtsEngine ttsEngine1 =new CachedTtsEngine(PiperTtsEngine.Instance(_piperCmd, _piperVoices), cacheBaseDir);
+            TtsEngine ttsEngine1 =new CachedTtsEngine(PiperTtsEngine.Instance(_piperVoices), cacheBaseDir);
             
             Assert.NotNull(ttsEngine1.Voices);
         }
@@ -56,7 +41,7 @@ namespace PiperDotNetTtsTest
         {
             using TempDirectory cacheBaseDir = TempDirectory.Create();
             
-            TtsEngine ttsEngine1 =new CachedTtsEngine(PiperTtsEngine.Instance(_piperCmd, _piperVoices), cacheBaseDir);
+            TtsEngine ttsEngine1 =new CachedTtsEngine(PiperTtsEngine.Instance(_piperVoices), cacheBaseDir);
             
             Assert.True(ttsEngine1.Voices.Count()==2);
         }
@@ -81,7 +66,7 @@ namespace PiperDotNetTtsTest
         {
             using TempDirectory cacheBaseDir = TempDirectory.Create();
             
-            TtsEngine ttsEngine1 =new CachedTtsEngine(PiperTtsEngine.Instance(_piperCmd, _piperVoices), cacheBaseDir);
+            TtsEngine ttsEngine1 =new CachedTtsEngine(PiperTtsEngine.Instance(_piperVoices), cacheBaseDir);
             
             var voiceInfo = ttsEngine1.Voices.FirstOrDefault(v => v.Culture.Equals(CultureInfo.GetCultureInfo("en-GB")));
             

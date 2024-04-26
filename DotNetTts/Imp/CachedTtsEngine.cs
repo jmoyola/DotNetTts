@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,7 +12,6 @@ namespace DotNetTts.Imp
         private readonly TtsEngine _engine;
         private readonly DirectoryInfo _rootCacheDirectory;
         private readonly HashAlgorithm _hashAlgorithm;
-        private TimeSpan _timeOfLife=TimeSpan.Zero;
         
         public CachedTtsEngine(TtsEngine engine, DirectoryInfo rootCacheDirectory)
         {
@@ -29,11 +27,8 @@ namespace DotNetTts.Imp
 
         public override IEnumerable<TtsVoiceInfo> Voices => _engine.Voices;
 
-        public TimeSpan TimeOfLife
-        {
-            get => _timeOfLife;
-            set => _timeOfLife=value;
-        }
+        public TimeSpan TimeOfLife { get; set; }=TimeSpan.Zero;
+    
 
         public override FileInfo Speech(String text, TtsVoiceInfo voiceInfo, TtsProperties ttsProperties = null)
         {
@@ -46,7 +41,8 @@ namespace DotNetTts.Imp
             ttsProperties= ttsProperties??TtsProperties.Default;
 
             DirectoryInfo bd = new DirectoryInfo(_rootCacheDirectory.FullName
-                                                 + Path.DirectorySeparatorChar + voiceInfo);
+                                                 + Path.DirectorySeparatorChar + voiceInfo.Culture.Name
+                                                 + Path.DirectorySeparatorChar + voiceInfo.Name);
             if (!bd.Exists)
                 Directory.CreateDirectory(bd.FullName);
             
@@ -55,8 +51,8 @@ namespace DotNetTts.Imp
             FileInfo cacheDestination = new FileInfo(bd.FullName + Path.DirectorySeparatorChar + hashName);
             
             if (!cacheDestination.Exists
-                || (_timeOfLife>TimeSpan.Zero
-                    && DateTime.UtcNow.Subtract(cacheDestination.CreationTimeUtc) >_timeOfLife))
+                || (TimeOfLife>TimeSpan.Zero
+                    && DateTime.UtcNow.Subtract(cacheDestination.CreationTimeUtc) >TimeOfLife))
                 _engine.Speech(text, voiceInfo, cacheDestination, ttsProperties);
             
             return cacheDestination;
@@ -66,23 +62,11 @@ namespace DotNetTts.Imp
         {
             if(outputWavFile==null)
                 throw new ArgumentNullException(nameof(outputWavFile));
-            
-            FileInfo voiceFile=Speech(text, voiceInfo, ttsProperties);
-            if(!voiceFile.FullName.Equals(outputWavFile.FullName))
-                voiceFile.CopyTo(outputWavFile.FullName, true);
-        }
 
-        public void InvalidCache(CultureInfo culture=null)
-        {
-            DirectoryInfo bd;
-            if(culture==null)
-                bd = new DirectoryInfo(_rootCacheDirectory.FullName);
-            else
-                bd = new DirectoryInfo(_rootCacheDirectory.FullName
-                                       + Path.DirectorySeparatorChar + (string.IsNullOrEmpty(culture.Name)?"_":culture.Name));
+            FileInfo voiceFile=Speech(text, voiceInfo, ttsProperties);
             
-            if (bd.Exists)
-                Directory.Delete(bd.FullName, true);
+            if(voiceFile.FullName.Equals(outputWavFile.FullName))
+                voiceFile.CopyTo(outputWavFile.FullName, true);
         }
     }
 }
