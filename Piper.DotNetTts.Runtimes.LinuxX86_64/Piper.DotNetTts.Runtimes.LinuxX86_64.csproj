@@ -11,6 +11,10 @@
 		  <PackageCopyToOutput>true</PackageCopyToOutput>
 	  </Content>
     </ItemGroup>
+	<Target Name="MyProject_NativeLibraryExtraction" AfterTargets="Build" Condition=" '$(OS)' == 'Unix' ">
+    	<Message Importance="high" Text="Making piper file executable'" />
+    	<Exec Command="chmod -R 775 '$(OutDir)runtimes/linux-x86_64/piper/piper'" />
+  	</Target>
 
     <ItemGroup>
       <ProjectReference Include="..\PiperDotNetTts\PiperDotNetTts.csproj" />

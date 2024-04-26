@@ -39,23 +39,36 @@ public class FfPlaySoundPlayer:SoundPlayer
     {
         if(_instance==null)
         {
-            string path = PathResolver.ProgramDirectory.First() + Path.DirectorySeparatorChar + "runtimes";
+            string path = PathResolver.ProgramDirectory.First()
+                          + Path.DirectorySeparatorChar + "runtimes"
+                          ;
             
             switch (Environment.OSVersion.Platform.ToString().Substring(0,3))
             {
                 case "Win":
-                    path += Path.DirectorySeparatorChar + "win-x64" + Path.DirectorySeparatorChar + "ffplay.exe";
+                    path += Path.DirectorySeparatorChar + "win-x64"
+                        + Path.DirectorySeparatorChar + "ffmpeg"
+                        + Path.DirectorySeparatorChar + "ffplay.exe";
                     break;
                 case "Uni":
-                    path += Path.DirectorySeparatorChar + "linux-x86_x64" + Path.DirectorySeparatorChar + "ffplay";
+                    path += Path.DirectorySeparatorChar + "linux-x86_64"
+                        + Path.DirectorySeparatorChar + "ffmpeg"
+                        + Path.DirectorySeparatorChar + "ffplay";
+                    
+                    Cmd.ExecuteShell($"chmod 775 '{path}'");
                     break;
+                
                 case "Mac":
-                    path += Path.DirectorySeparatorChar + "macos_x64" + Path.DirectorySeparatorChar + "ffplay";
+                    path += Path.DirectorySeparatorChar + "macos_x64"
+                        + Path.DirectorySeparatorChar + "ffmpeg"
+                        + Path.DirectorySeparatorChar + "ffplay";
+                    Cmd.ExecuteShell($"chmod 775 '{path}'");
+                    
                     break;
                 default:
                     throw new SoundPlayerException($"Platform {Environment.OSVersion.Platform} is not supported.");
             }
-
+            
             _instance = new FfPlaySoundPlayer(new FileInfo(path));
         }
 

@@ -23,4 +23,10 @@
 	<ItemGroup>
 		<None Include="docs\readme.md" Pack="true" PackagePath="\"/>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="runtimes\linux-x86_64\" />
+	  <Folder Include="runtimes\macos_x64\" />
+	  <Folder Include="runtimes\win-x64\" />
+	</ItemGroup>
 </Project>
