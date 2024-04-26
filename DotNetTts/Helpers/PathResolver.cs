@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace DotNetTts.Core;
+namespace DotNetTts.Helpers;
 
 public static class PathResolver
 {

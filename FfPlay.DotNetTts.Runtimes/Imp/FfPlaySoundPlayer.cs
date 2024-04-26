@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using DotNetTts.Core;
+using DotNetTts.Helpers;
 
 namespace FfPlay.DotNetTts.Runtimes.Imp;
 
@@ -53,7 +54,6 @@ public class FfPlaySoundPlayer:SoundPlayer
                     break;
                 default:
                     throw new SoundPlayerException($"Platform {Environment.OSVersion.Platform} is not supported.");
-                    break;
             }
 
             _instance = new FfPlaySoundPlayer(new FileInfo(path));
