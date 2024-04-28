@@ -22,19 +22,23 @@ namespace PiperDotNetTts.Imp
 
         private PiperTtsEngine(DirectoryInfo basePiperLanguages)
         {
-            
-            IEnumerable<IPiperRuntimeInfo> rtis = Plugins.AvailableInstances<PiperRuntimeInfo>();
+            FileInfo piperCmd = PathHelper.FindProgram("piper").FirstOrDefault();
+            if (piperCmd == null)
+            {
+                IEnumerable<IPiperRuntimeInfo> rtis = Plugins.AvailableInstances<PiperRuntimeInfo>();
 
-            IPiperRuntimeInfo rti = rtis.FirstOrDefault(v => v.IsCompatible);
+                IPiperRuntimeInfo rti = rtis.FirstOrDefault(v => v.IsCompatible);
 
-            if (rti == null)
-                throw new TtsEngineException($"Can't find a available plugin for '{RuntimeInfo.OsPlatform}{RuntimeInfo.OsArchitecture}'." );
-            
-            FileInfo piperCmd=new FileInfo(AppContext.BaseDirectory + rti.PiperCmdPath);
+                if (rti == null)
+                    throw new TtsEngineException(
+                        $"Can't find a available plugin for '{RuntimeInfo.OsPlatform}{RuntimeInfo.OsArchitecture}'.");
+
+                piperCmd = new FileInfo(rti.PiperCmdPath);
+            }
             
             if (!piperCmd.Exists)
                 throw new TtsEngineException($"Piper cmd path '{piperCmd}' is null or not exists.");
-
+            
             if (basePiperLanguages == null || !basePiperLanguages.Exists)
                 throw new TtsEngineException($"Base Piper languages path '{basePiperLanguages}' is null or not exists.");
             

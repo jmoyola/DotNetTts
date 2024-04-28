@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace DotNetTts.Helpers;
 
+[ExcludeFromCodeCoverage]
 public abstract class RuntimeInfo:IRuntimeInfo
 {
     public abstract string Platform { get; }

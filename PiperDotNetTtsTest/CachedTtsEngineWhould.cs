@@ -10,6 +10,7 @@ using Xunit;
 
 namespace PiperDotNetTtsTest
 {
+    [CollectionDefinition("PiperTests", DisableParallelization = true)]
     public class CachedTtsEngineWhould
     {
         private readonly DirectoryInfo _piperVoices;

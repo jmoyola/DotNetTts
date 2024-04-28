@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace DotNetTts.Helpers
 {
-    public abstract class BaseProperties:BaseReadOnlyProperties
+    public class BaseProperties:BaseReadOnlyProperties
     {
-        protected BaseProperties(IDictionary<String, Object> properties)
+        public BaseProperties(IDictionary<String, Object> properties)
         :base(properties) { }
         
-        public bool SetValue(String key, Object value)
+        public void SetValue(String key, Object value)
         {
             if (!InternalProperties.ContainsKey(key))
                 throw new TtsPropertiesException($"Property with name '{key}' don't exists.");
@@ -25,8 +25,6 @@ namespace DotNetTts.Helpers
             {
                 throw new TtsPropertiesException($"Can't set value of type '{value.GetType()}' to property with name '{key}' ({t}).", ex);
             }
-
-            return true;
         }
     }
 }

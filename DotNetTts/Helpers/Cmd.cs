@@ -1,11 +1,13 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 namespace DotNetTts.Helpers;
 
 public static class Cmd
 {
+    [ExcludeFromCodeCoverage]
     [Serializable]
     public class CmdException:Exception
     {

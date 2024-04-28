@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using DotNetTts.Core;
+using DotNetTts.Helpers;
 
 namespace DotNetTts.Imp
 {
@@ -42,7 +43,7 @@ namespace DotNetTts.Imp
 
             DirectoryInfo bd = new DirectoryInfo(_rootCacheDirectory.FullName
                                                  + Path.DirectorySeparatorChar + voiceInfo.Culture.Name
-                                                 + Path.DirectorySeparatorChar + voiceInfo.Name);
+                                                 + Path.DirectorySeparatorChar + PathHelper.NonValidCharactersInFileNameRegex.Replace(voiceInfo.Name, "").Trim());
             if (!bd.Exists)
                 Directory.CreateDirectory(bd.FullName);
             

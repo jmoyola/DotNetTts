@@ -39,37 +39,44 @@ public class FfPlaySoundPlayer:SoundPlayer
     {
         if(_instance==null)
         {
-            string path = PathResolver.ProgramDirectory.First()
-                          + Path.DirectorySeparatorChar + "runtimes"
-                          ;
-            
-            switch (Environment.OSVersion.Platform.ToString().Substring(0,3))
-            {
-                case "Win":
-                    path += Path.DirectorySeparatorChar + "win-x64"
-                        + Path.DirectorySeparatorChar + "ffmpeg"
-                        + Path.DirectorySeparatorChar + "ffplay.exe";
-                    break;
-                case "Uni":
-                    path += Path.DirectorySeparatorChar + "linux-x86_64"
-                        + Path.DirectorySeparatorChar + "ffmpeg"
-                        + Path.DirectorySeparatorChar + "ffplay";
-                    
-                    Cmd.ExecuteShell($"chmod 775 '{path}'");
-                    break;
+            FileInfo path = PathHelper.FindProgram("ffplay").FirstOrDefault();
                 
-                case "Mac":
-                    path += Path.DirectorySeparatorChar + "macos_x64"
-                        + Path.DirectorySeparatorChar + "ffmpeg"
-                        + Path.DirectorySeparatorChar + "ffplay";
-                    Cmd.ExecuteShell($"chmod 775 '{path}'");
-                    
-                    break;
-                default:
-                    throw new SoundPlayerException($"Platform {Environment.OSVersion.Platform} is not supported.");
+            if(path==null){
+                
+                string lPath = PathHelper.ProgramDirectory
+                       + Path.DirectorySeparatorChar + "runtimes"
+                              ;
+
+                switch (Environment.OSVersion.Platform.ToString().Substring(0, 3))
+                {
+                    case "Win":
+                        lPath += Path.DirectorySeparatorChar + "win-x64"
+                                                            + Path.DirectorySeparatorChar + "ffmpeg"
+                                                            + Path.DirectorySeparatorChar + "ffplay.exe";
+                        break;
+                    case "Uni":
+                        lPath += Path.DirectorySeparatorChar + "linux-x86_64"
+                                                            + Path.DirectorySeparatorChar + "ffmpeg"
+                                                            + Path.DirectorySeparatorChar + "ffplay";
+
+                        Cmd.ExecuteShell($"chmod 775 '{path}'");
+                        break;
+
+                    case "Mac":
+                        lPath += Path.DirectorySeparatorChar + "macos_x64"
+                                                            + Path.DirectorySeparatorChar + "ffmpeg"
+                                                            + Path.DirectorySeparatorChar + "ffplay";
+                        Cmd.ExecuteShell($"chmod 775 '{path}'");
+
+                        break;
+                    default:
+                        throw new SoundPlayerException($"Platform {Environment.OSVersion.Platform} is not supported.");
+                }
+
+                path = new FileInfo(lPath);
             }
             
-            _instance = new FfPlaySoundPlayer(new FileInfo(path));
+            _instance = new FfPlaySoundPlayer(path);
         }
 
         return _instance;

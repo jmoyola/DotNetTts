@@ -9,6 +9,17 @@ using Xunit;
 
 namespace PiperDotNetTtsTest
 {
+    [CollectionDefinition("PiperTests", DisableParallelization = true)]
+    public class PiperTtsEngineWhould2
+    {
+        [Fact]
+        public void PiperTtsEngineInstanceWithoutPreviosInstanceWithParametersThrowError()
+        {
+            Assert.Throws<TtsEngineException>(()=> PiperTtsEngine.Instance());
+        }
+    }
+    
+    [CollectionDefinition("PiperTests", DisableParallelization = true)]
     public class PiperTtsEngineWhould
     {
         protected readonly DirectoryInfo _piperVoices;
@@ -27,6 +38,8 @@ namespace PiperDotNetTtsTest
         {
             return PiperTtsEngine.Instance(_piperVoices);
         }
+        
+
         
         [Fact]
         public void PiperTtsEngineInstanceReturnInstance()
@@ -53,12 +66,7 @@ namespace PiperDotNetTtsTest
             
             Assert.Equal(ttsEngine1, ttsEngine2);
         }
-
-        [Fact]
-        public void PiperTtsEngineInstanceWithoutPreviosInstanceWithParametersThrowError()
-        {
-            Assert.Throws<TtsEngineException>(()=> PiperTtsEngine.Instance());
-        }
+        
         
         [Fact]
         public void PiperTtsEngineVoicesReturnNotNull()

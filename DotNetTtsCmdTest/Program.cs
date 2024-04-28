@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using DotNetTts.Core;
+using DotNetTts.Imp;
 using FfPlay.DotNetTts.Runtimes.Imp;
 using PiperDotNetTts.Imp;
 
 namespace DotNetTtsCmdTest
 {
+    [ExcludeFromCodeCoverage]
     internal class Program
     {
         public static void Main(string[] args)
@@ -57,7 +60,7 @@ namespace DotNetTtsCmdTest
             TtsEngine ttsEngine;
             ttsEngine = PiperTtsEngine.Instance(piperVoices);
             //ttsEngine = PiperTtsEngine.Instance(piperCmd, piperVoices);
-            //ttsEngine = new CachedTtsEngine(ttsEngine, cachedVoices);
+            ttsEngine = new CachedTtsEngine(ttsEngine, cachedVoices){TimeOfLife = new TimeSpan(0,1,0)};
 
             var voices = ttsEngine.Voices;
             Console.WriteLine("Languages available: " + String.Join(", ",  voices.Select(v => v.ToString())));

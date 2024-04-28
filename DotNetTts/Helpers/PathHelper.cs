@@ -6,9 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace DotNetTts.Helpers;
 
-public static class PathResolver
+public static class PathHelper
 {
-    public static IEnumerable<string> ProgramDirectory=> new string[]{AppContext.BaseDirectory};
+    public static readonly Regex NonValidCharactersInFileNameRegex = new Regex("[<>;\\/\\\\\\\"|?*\\x00-\\x1F]");
+    public static string ProgramDirectory=> AppContext.BaseDirectory;
 
     public static IEnumerable<string> ProgramDeepDirectories => GetDirectories(AppContext.BaseDirectory, Int32.MaxValue);
 
@@ -65,7 +66,7 @@ public static class PathResolver
 
         Regex r = new Regex(fileNamePattern, regexOptions);
         
-        foreach (string pathFolder in pathList)
+        foreach (string pathFolder in pathList.Where(d=>Directory.Exists(d)))
         {
             ret.AddRange(new DirectoryInfo(pathFolder).GetFiles()
                 .Where(v=>r.IsMatch(v.Name))

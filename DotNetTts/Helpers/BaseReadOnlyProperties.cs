@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.Serialization;
 
 namespace DotNetTts.Helpers
 {
+    [ExcludeFromCodeCoverage]
     [Serializable]
     public class TtsPropertiesException:Exception
     {
@@ -21,10 +23,10 @@ namespace DotNetTts.Helpers
         }
     }
     
-    public abstract class BaseReadOnlyProperties
+    public class BaseReadOnlyProperties
     {
         protected readonly IDictionary<String, Object> InternalProperties;
-        protected BaseReadOnlyProperties(IDictionary<String, Object> properties)
+        public BaseReadOnlyProperties(IDictionary<String, Object> properties)
         {
             InternalProperties = properties ?? throw new ArgumentNullException(nameof(properties));
         }
